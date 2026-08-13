@@ -1,0 +1,5 @@
+schema,table,description
+public,account,Application accounts
+public,membership,Account-to-group memberships
+public,standalone,No relationships
+audit,event,Recorded events

@@ -1,0 +1,41 @@
+name: Bug report
+description: Report reproducible incorrect behavior in dbschemaatlas.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping improve dbschemaatlas. Remove credentials and private
+        database content from all examples and logs.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Problem
+      description: What happened, and what did you expect instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproducible example
+      description: Provide the smallest R example that demonstrates the problem.
+      render: r
+    validations:
+      required: true
+
+  - type: input
+    id: backend
+    attributes:
+      label: DBI backend
+      description: For example, RSQLite, RPostgres, or odbc, including its version.
+
+  - type: textarea
+    id: session
+    attributes:
+      label: Session information
+      description: Paste the output of sessionInfo().
+      render: text
+    validations:
+      required: true

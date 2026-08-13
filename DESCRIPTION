@@ -1,0 +1,46 @@
+Package: dbschemaatlas
+Title: Reusable Database Schema Metadata and Reports
+Version: 0.1.0
+Authors@R:
+    person(given = "Tony", family = "Chemit", role = c("aut", "cre"),
+           email = "tchemit@users.noreply.github.com")
+Description: Extracts PostgreSQL schema metadata through application-supplied
+    DBI connections, persists portable metadata snapshots, builds dependency
+    models, and creates neutral HTML schema documentation and interactive
+    dependency graphs. Database drivers and application branding remain the
+    responsibility of consuming applications.
+License: LGPL-2.1
+URL: https://ultreia-io.github.io/dbschemaatlas/,
+    https://github.com/ultreia-io/dbschemaatlas
+BugReports: https://github.com/ultreia-io/dbschemaatlas/issues
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+Depends:
+    R (>= 4.0.0)
+Imports:
+    data.table,
+    DBI,
+    dbiutils (>= 0.1.0),
+    htmltools,
+    htmlwidgets,
+    visNetwork,
+    whisker
+Suggests:
+    covr,
+    knitr,
+    pkgdown,
+    rmarkdown,
+    RSQLite,
+    testthat (>= 3.0.0),
+    withr
+VignetteBuilder: knitr
+Config/testthat/edition: 3
+Config/Needs/coverage:
+    covr,
+    DT,
+    xml2
+Config/Needs/website:
+    pkgdown
+Config/roxygen2/version: 8.1.0
+Remotes:
+    ultreia-io/dbiutils

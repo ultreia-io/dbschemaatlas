@@ -1,0 +1,5 @@
+schema,table,primary_key_columns
+public,account,tenant_id|account_id
+public,membership,tenant_id|account_id|group_id
+public,standalone,id
+audit,event,id

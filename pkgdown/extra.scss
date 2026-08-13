@@ -1,0 +1,17 @@
+// Give documentation content more room on large screens while retaining
+// pkgdown's default, stacked layout on smaller displays.
+@media (min-width: 1200px) {
+  .container[class*="template-"] {
+    width: calc(100% - 3rem);
+    max-width: 1440px;
+  }
+
+  .container[class*="template-"] > .row > main.col-md-9 {
+    width: 80%;
+    max-width: 64rem;
+  }
+
+  .container[class*="template-"] > .row > aside.col-md-3 {
+    width: 20%;
+  }
+}

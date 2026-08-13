@@ -1,0 +1,52 @@
+url: https://ultreia-io.github.io/dbschemaatlas/
+
+template:
+  bootstrap: 5
+  light-switch: true
+
+reference:
+  - title: Metadata
+    contents: [extract_schema_metadata, write_metadata, read_metadata]
+  - title: Models and dependencies
+    contents: [build_schema_model, model_schemas, model_tables, model_columns, model_dependencies, model_usages, dependency_tree]
+  - title: Reports and graphs
+    contents: [atlas_report_config, dependency_graph_data, dependency_graph, render_schema_report, generate_report_indexes]
+  - title: Descriptions and database updates
+    contents: [parse_description, atlas_anchor, apply_metadata_comments]
+
+articles:
+  - title: Get started
+    navbar: ~
+    contents:
+      - dbschemaatlas
+
+home:
+  sidebar:
+    structure: [license, citation, authors, dev]
+
+navbar:
+  structure:
+    left: [intro, reference, articles, news, community]
+    right: [coverage, search, github, lightswitch]
+  components:
+    community:
+      text: Community
+      menu:
+        - text: Contributing guide
+          href: CONTRIBUTING.html
+        - text: Maintainer guide
+          href: DEVELOPMENT.html
+        - text: Security policy
+          href: SECURITY.html
+        - text: Code of conduct
+          href: CODE_OF_CONDUCT.html
+        - text: "---------"
+        - text: Feature request
+          href: https://github.com/ultreia-io/dbschemaatlas/issues/new?template=feature-request.yml
+        - text: Report a bug
+          href: https://github.com/ultreia-io/dbschemaatlas/issues/new?template=bug-report.yml
+        - text: Report a vulnerability
+          href: https://github.com/ultreia-io/dbschemaatlas/security/advisories/new
+    coverage:
+      text: Coverage
+      href: https://app.codecov.io/gh/ultreia-io/dbschemaatlas/tree/develop
