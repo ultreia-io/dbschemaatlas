@@ -1,0 +1,10 @@
+test_that("graph data includes cross-schema edges and configurable colors", {
+  model <- build_schema_model(fixture_metadata())
+  config <- atlas_report_config(schema_colors = c(public = "blue", audit = "orange"), schema_groups = list(core = "public"))
+  graph <- dependency_graph_data(model, config)
+  expect_equal(nrow(graph$nodes), 4L)
+  expect_true(any(graph$edges$from == "audit.event" & graph$edges$to == "public.account"))
+  expect_equal(graph$nodes[id == "audit.event", color], "orange")
+  expect_equal(graph$nodes[id == "public.account", group], "core")
+  expect_s3_class(dependency_graph(model, config), "visNetwork")
+})

@@ -1,0 +1,85 @@
+---
+title: "Getting started with dbschemaatlas"
+description: Extract, persist, inspect, and document database schemas.
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with dbschemaatlas}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+`dbschemaatlas` keeps connection credentials, database drivers, and branding
+in the consuming application. Its documentation builds entirely from the
+packaged offline fixture.
+
+## Supply a connection provider and extract metadata
+
+A provider creates one connection whose lifecycle is owned by the extraction
+call. PostgreSQL is shown here, but neither the driver nor credentials are a
+package dependency.
+
+```{r provider, eval=FALSE}
+provider <- function() {
+  DBI::dbConnect(
+    RPostgres::Postgres(),
+    dbname = Sys.getenv("ATLAS_DATABASE"),
+    user = Sys.getenv("ATLAS_USER"),
+    password = Sys.getenv("ATLAS_PASSWORD")
+  )
+}
+metadata <- extract_schema_metadata(c("public", "audit"), provider)
+```
+
+Internally, connection ownership, query execution, and SQL reading are
+delegated to `dbiutils`.
+
+## Save and load metadata offline
+
+```{r offline}
+library(dbschemaatlas)
+fixture <- system.file("extdata", "example-metadata", package = "dbschemaatlas")
+metadata <- read_metadata(fixture)
+snapshot <- file.path(tempdir(), "atlas-snapshot")
+write_metadata(metadata, snapshot)
+offline_metadata <- read_metadata(snapshot)
+model <- build_schema_model(offline_metadata)
+model_dependencies(model)
+```
+
+## Generate a schema report
+
+```{r report, eval=FALSE}
+config <- atlas_report_config(
+  title = "Customer database",
+  abstract = "Tables and relationships used by the customer service.",
+  author = "Data engineering",
+  output_directory = "schema-report"
+)
+render_schema_report(model, config)
+generate_report_indexes(config$output_directory)
+```
+
+## Customize branding and graph colors
+
+```{r branding, eval=FALSE}
+config <- atlas_report_config(
+  title = "Customer database",
+  logo = "brand/logo.png",
+  analytics_html = "brand/analytics.html",
+  schemas = c("public", "audit"),
+  schema_groups = list(application = "public", operations = "audit"),
+  schema_colors = c(public = "#2563EB", audit = "#D97706"),
+  filename_prefix = "customer_database",
+  output_directory = "schema-report",
+  domain_labels = c(public = "Application", audit = "Operations"),
+  sections = c(columns = TRUE, dependencies = TRUE, usages = TRUE, graphs = TRUE),
+  template_overrides = list(report = "brand/report.Rmd.tpl", style = "brand/report.css")
+)
+```
+
+All overrides are explicit; neutral installed templates remain usable when no
+custom resources are supplied.

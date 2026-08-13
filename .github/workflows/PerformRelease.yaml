@@ -1,0 +1,259 @@
+name: Perform Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version without the v prefix (for example, 1.2.3)
+        required: true
+        type: string
+
+permissions:
+  actions: write
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    name: Prepare release branch
+    runs-on: ubuntu-latest
+
+    env:
+      VERSION: ${{ inputs.version }}
+
+    outputs:
+      release_branch: ${{ steps.release.outputs.branch }}
+      release_sha: ${{ steps.release.outputs.sha }}
+      tag: ${{ steps.release.outputs.tag }}
+
+    steps:
+      - name: Check out develop
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+          ref: develop
+
+      - name: Configure Git author
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config commit.gpgSign false
+          git config tag.gpgSign false
+
+      - name: Start release
+        id: release
+        shell: bash
+        run: |
+          if [[ ! "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Release version must have the form x.y.z, but found ${VERSION}."
+            exit 1
+          fi
+
+          release_branch="release/${VERSION}"
+          tag="v${VERSION}"
+
+          git fetch --prune --tags origin
+
+          if git show-ref --verify --quiet "refs/tags/${tag}"; then
+            echo "::error::Tag ${tag} already exists."
+            exit 1
+          fi
+
+          if git show-ref --verify --quiet "refs/remotes/origin/${release_branch}"; then
+            git switch --create "${release_branch}" \
+              --track "origin/${release_branch}"
+          else
+            package=$(awk -F ': *' '$1 == "Package" { print $2; exit }' DESCRIPTION)
+
+            if [[ "${package}" != "dbschemaatlas" ]]; then
+              echo "::error::Expected package name dbschemaatlas, but found ${package}."
+              exit 1
+            fi
+
+            if ! grep -Fqx "# ${package} ${VERSION}" NEWS.md; then
+              echo "::error::NEWS.md must contain a '# ${package} ${VERSION}' heading."
+              exit 1
+            fi
+
+            git switch --create "${release_branch}" "origin/develop"
+
+            metadata=$(mktemp)
+            awk -v version="${VERSION}" '
+              BEGIN { updated = 0 }
+              /^Version:[[:space:]]*/ && !updated {
+                print "Version: " version
+                updated = 1
+                next
+              }
+              { print }
+              END { if (!updated) exit 1 }
+            ' DESCRIPTION > "${metadata}"
+            cp "${metadata}" DESCRIPTION
+            rm -f "${metadata}"
+
+            if ! git diff --quiet -- DESCRIPTION; then
+              git add DESCRIPTION
+              git commit -m "Prepare dbschemaatlas ${VERSION}"
+            fi
+
+            git push --set-upstream origin \
+              "HEAD:refs/heads/${release_branch}"
+          fi
+
+          package=$(awk -F ': *' '$1 == "Package" { print $2; exit }' DESCRIPTION)
+          package_version=$(awk -F ': *' '$1 == "Version" { print $2; exit }' DESCRIPTION)
+
+          if [[ "${package}" != "dbschemaatlas" ]]; then
+            echo "::error::Expected package name dbschemaatlas, but found ${package}."
+            exit 1
+          fi
+
+          if [[ "${package_version}" != "${VERSION}" ]]; then
+            echo "::error::Release branch version ${package_version} does not match ${VERSION}."
+            exit 1
+          fi
+
+          if ! grep -Fqx "# ${package} ${VERSION}" NEWS.md; then
+            echo "::error::NEWS.md must contain a '# ${package} ${VERSION}' heading."
+            exit 1
+          fi
+
+          if ! git merge-base --is-ancestor "origin/main" HEAD; then
+            echo "::error::${release_branch} does not contain the current main branch."
+            exit 1
+          fi
+
+          if git merge-base --is-ancestor HEAD "origin/main"; then
+            echo "::error::${release_branch} has already been integrated into main."
+            exit 1
+          fi
+
+          release_sha=$(git rev-parse HEAD)
+
+          echo "branch=${release_branch}" >> "${GITHUB_OUTPUT}"
+          echo "sha=${release_sha}" >> "${GITHUB_OUTPUT}"
+          echo "tag=${tag}" >> "${GITHUB_OUTPUT}"
+
+          {
+            echo "### Release candidate"
+            echo ""
+            echo "- Branch: \`${release_branch}\`"
+            echo "- Commit: \`${release_sha}\`"
+            echo "- Tag after validation: \`${tag}\`"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+  build:
+    name: Build release candidate
+    needs: prepare
+    uses: ./.github/workflows/Build.yaml
+    with:
+      ref: ${{ needs.prepare.outputs.release_sha }}
+    secrets: inherit
+
+  test:
+    name: Test release candidate
+    needs: prepare
+    uses: ./.github/workflows/Test.yaml
+    with:
+      ref: ${{ needs.prepare.outputs.release_sha }}
+    secrets: inherit
+
+  finalize:
+    name: Finalize Gitflow release
+    needs:
+      - prepare
+      - build
+      - test
+    runs-on: ubuntu-latest
+
+    env:
+      RELEASE_BRANCH: ${{ needs.prepare.outputs.release_branch }}
+      RELEASE_SHA: ${{ needs.prepare.outputs.release_sha }}
+      TAG: ${{ needs.prepare.outputs.tag }}
+      VERSION: ${{ inputs.version }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+          ref: develop
+
+      - name: Configure Git author
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config commit.gpgSign false
+          git config tag.gpgSign false
+
+      - name: Merge and tag release
+        shell: bash
+        run: |
+          git fetch --prune --tags origin
+
+          if ! git show-ref --verify --quiet "refs/remotes/origin/${RELEASE_BRANCH}"; then
+            echo "::error::Remote branch ${RELEASE_BRANCH} no longer exists."
+            exit 1
+          fi
+
+          current_release_sha=$(git rev-parse "origin/${RELEASE_BRANCH}")
+
+          if [[ "${current_release_sha}" != "${RELEASE_SHA}" ]]; then
+            echo "::error::${RELEASE_BRANCH} changed after validation. Run Perform Release again."
+            exit 1
+          fi
+
+          if git show-ref --verify --quiet "refs/tags/${TAG}"; then
+            echo "::error::Tag ${TAG} already exists."
+            exit 1
+          fi
+
+          git switch --force-create main origin/main
+          git merge --no-ff "${RELEASE_SHA}" \
+            -m "Merge branch '${RELEASE_BRANCH}'"
+          git tag --annotate "${TAG}" \
+            --message "dbschemaatlas ${VERSION}"
+
+          git switch --force-create develop origin/develop
+          git merge --no-ff "${TAG}" \
+            -m "Merge tag '${TAG}' into develop"
+
+          git push --atomic origin \
+            main:refs/heads/main \
+            develop:refs/heads/develop \
+            "refs/tags/${TAG}:refs/tags/${TAG}"
+
+          if ! git push origin --delete "${RELEASE_BRANCH}"; then
+            echo "::warning::Release completed, but ${RELEASE_BRANCH} could not be deleted."
+          fi
+
+          {
+            echo "### Release finalized"
+            echo ""
+            echo "- Production branch: \`main\`"
+            echo "- Development branch: \`develop\`"
+            echo "- Tag: \`${TAG}\`"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+  publish:
+    name: Publish release and website
+    needs:
+      - prepare
+      - finalize
+    runs-on: ubuntu-latest
+
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      TAG: ${{ needs.prepare.outputs.tag }}
+
+    steps:
+      - name: Trigger tag workflows
+        shell: bash
+        run: |
+          gh workflow run Website.yaml --repo "${GITHUB_REPOSITORY}" --ref "${TAG}"
+          gh workflow run Release.yaml --repo "${GITHUB_REPOSITORY}" --ref "${TAG}"

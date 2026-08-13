@@ -1,0 +1,14 @@
+schema,table,column,type,mandatory,description
+public,account,tenant_id,integer,YES,Tenant identifier
+public,account,account_id,integer,YES,Account identifier
+public,account,name,text,YES,"[EN] Display name
+
+[FR] Nom affiché"
+public,membership,tenant_id,integer,YES,Tenant identifier
+public,membership,account_id,integer,YES,Account identifier
+public,membership,group_id,integer,YES,Group identifier
+public,membership,note,text,NO,NA
+public,standalone,id,integer,YES,NA
+audit,event,id,integer,YES,Event identifier
+audit,event,tenant_id,integer,YES,Tenant identifier
+audit,event,account_id,integer,NO,Optional account identifier

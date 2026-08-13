@@ -1,0 +1,103 @@
+---
+output:
+  github_document:
+    html_preview: false
+---
+
+<!-- README.md is generated from README.Rmd. Please edit README.Rmd. -->
+
+# dbschemaatlas
+
+**Production (`main`)**
+[![Codecov](https://codecov.io/gh/ultreia-io/dbschemaatlas/branch/main/graph/badge.svg)](https://app.codecov.io/gh/ultreia-io/dbschemaatlas/tree/main)
+[![Latest release](https://img.shields.io/github/v/release/ultreia-io/dbschemaatlas?display_name=tag&sort=semver)](https://github.com/ultreia-io/dbschemaatlas/releases/latest)
+
+**Development (`develop`)**
+[![Build](https://github.com/ultreia-io/dbschemaatlas/actions/workflows/Build.yaml/badge.svg?branch=develop)](https://github.com/ultreia-io/dbschemaatlas/actions/workflows/Build.yaml?query=branch%3Adevelop)
+[![Test](https://github.com/ultreia-io/dbschemaatlas/actions/workflows/Test.yaml/badge.svg?branch=develop)](https://github.com/ultreia-io/dbschemaatlas/actions/workflows/Test.yaml?query=branch%3Adevelop)
+[![Codecov](https://codecov.io/gh/ultreia-io/dbschemaatlas/branch/develop/graph/badge.svg)](https://app.codecov.io/gh/ultreia-io/dbschemaatlas/tree/develop)
+
+[![Website](https://github.com/ultreia-io/dbschemaatlas/actions/workflows/Website.yaml/badge.svg)](https://github.com/ultreia-io/dbschemaatlas/actions/workflows/Website.yaml)
+[![License](https://img.shields.io/github/license/ultreia-io/dbschemaatlas)](https://github.com/ultreia-io/dbschemaatlas/blob/main/LICENSE)
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+
+`dbschemaatlas` extracts PostgreSQL catalog metadata, saves portable snapshots,
+builds dependency models, and creates neutral offline HTML schema reports.
+Applications provide the database connection and optional branding.
+
+Package website: https://ultreia-io.github.io/dbschemaatlas/
+
+## Features
+
+- Ordered simple and composite primary and foreign keys.
+- Cross-schema dependencies and reverse usages.
+- Portable CSV snapshots for offline documentation.
+- Dependency trees and interactive graphs.
+- Configurable titles, schemas, colors, links, logos, analytics, sections, and templates.
+- No database driver, credentials, or application branding in the package.
+
+## Installation
+
+```r
+install.packages("pak")
+pak::pak("ultreia-io/dbschemaatlas")
+```
+
+The package declares `dbiutils` through `Remotes`, so GitHub Actions and local
+package installers can resolve it without absolute paths.
+
+## Offline usage
+
+```{r example, message=FALSE}
+library(dbschemaatlas)
+
+fixture <- system.file("extdata", "example-metadata", package = "dbschemaatlas")
+metadata <- read_metadata(fixture)
+model <- build_schema_model(metadata)
+model_dependencies(model)
+```
+
+For live extraction, provide a zero-argument DBI connection provider:
+
+```r
+provider <- function() DBI::dbConnect(RPostgres::Postgres(), dbname = "example")
+metadata <- extract_schema_metadata(c("public", "audit"), provider)
+write_metadata(metadata, "metadata-snapshot")
+```
+
+Render an offline report to a caller-selected directory:
+
+```r
+config <- atlas_report_config(
+  title = "Example database",
+  output_directory = "schema-report",
+  schema_colors = c(public = "#3B82F6", audit = "#F59E0B")
+)
+render_schema_report(model, config)
+generate_report_indexes(config$output_directory)
+```
+
+## `dbiutils` dependency
+
+The package delegates query execution to `dbiutils::db_query()`, connection
+ownership to `dbiutils::with_db_connection()`, and packaged SQL loading to
+`dbiutils::read_sql_file()`. It does not duplicate those helpers and imports
+no database driver.
+
+## Development
+
+```r
+devtools::load_all()
+devtools::build_readme()
+devtools::document()
+devtools::test()
+devtools::check()
+pkgdown::build_site()
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) and [DEVELOPMENT.md](DEVELOPMENT.md).
+
+## License
+
+GNU Lesser General Public License, version 2.1 (LGPL-2.1), matching
+`dbiutils`. See [LICENSE](LICENSE).
