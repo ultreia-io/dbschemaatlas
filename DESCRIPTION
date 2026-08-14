@@ -20,7 +20,7 @@ Depends:
 Imports:
     data.table,
     DBI,
-    dbiutils (>= 0.1.1),
+    dbiutils (>= 0.1.0),
     htmltools,
     htmlwidgets,
     visNetwork,
