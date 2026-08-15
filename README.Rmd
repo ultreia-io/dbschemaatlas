@@ -8,15 +8,10 @@ output:
 
 # dbschemaatlas
 
-**Production (`main`)**
-[![Codecov](https://codecov.io/gh/ultreia-io/dbschemaatlas/branch/main/graph/badge.svg)](https://app.codecov.io/gh/ultreia-io/dbschemaatlas/tree/main)
-[![Latest release](https://img.shields.io/github/v/release/ultreia-io/dbschemaatlas?display_name=tag&sort=semver)](https://github.com/ultreia-io/dbschemaatlas/releases/latest)
-
-**Development (`develop`)**
 [![Build](https://github.com/ultreia-io/dbschemaatlas/actions/workflows/Build.yaml/badge.svg?branch=develop)](https://github.com/ultreia-io/dbschemaatlas/actions/workflows/Build.yaml?query=branch%3Adevelop)
 [![Test](https://github.com/ultreia-io/dbschemaatlas/actions/workflows/Test.yaml/badge.svg?branch=develop)](https://github.com/ultreia-io/dbschemaatlas/actions/workflows/Test.yaml?query=branch%3Adevelop)
 [![Codecov](https://codecov.io/gh/ultreia-io/dbschemaatlas/branch/develop/graph/badge.svg)](https://app.codecov.io/gh/ultreia-io/dbschemaatlas/tree/develop)
-
+[![Latest release](https://img.shields.io/github/v/release/ultreia-io/dbschemaatlas?display_name=tag&sort=semver)](https://github.com/ultreia-io/dbschemaatlas/releases/latest)
 [![Website](https://github.com/ultreia-io/dbschemaatlas/actions/workflows/Website.yaml/badge.svg)](https://github.com/ultreia-io/dbschemaatlas/actions/workflows/Website.yaml)
 [![License](https://img.shields.io/github/license/ultreia-io/dbschemaatlas)](https://github.com/ultreia-io/dbschemaatlas/blob/main/LICENSE)
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
