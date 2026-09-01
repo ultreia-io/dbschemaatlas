@@ -39,13 +39,13 @@ jobs:
           ref: ${{ inputs.ref || github.sha }}
 
       - name: Set up R
-        uses: r-lib/actions/setup-r@v2.12.1
+        uses: r-lib/actions/setup-r@v2.13.0
         with:
           r-version: release
           use-public-rspm: true
 
       - name: Install coverage dependencies
-        uses: r-lib/actions/setup-r-dependencies@v2.12.1
+        uses: r-lib/actions/setup-r-dependencies@v2.13.0
         with:
           extra-packages: |
             any::covr
