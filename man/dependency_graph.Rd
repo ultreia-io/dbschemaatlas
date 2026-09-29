@@ -12,8 +12,9 @@ dependency_graph(model, config = atlas_report_config())
 \item{config}{An \code{\link[=atlas_report_config]{atlas_report_config()}} object.}
 }
 \value{
-A \code{visNetwork} htmlwidget.
+A \code{visNetwork} htmlwidget with its details panel and embedded presentation assets.
 }
 \description{
-Create an interactive dependency graph
+Includes a two-panel layout, node navigation, neighbourhood highlighting,
+and a details panel showing descriptions, column flags, dependencies and usages.
 }

@@ -16,8 +16,10 @@
 #' @param timestamp_format Format passed to [base::format()].
 #' @param sections Named logical vector controlling optional report sections.
 #' @param template_overrides Named list containing custom `report`, `style`,
-#'   `report_script`, or `graph_script` paths.
+#'   `report_script`, `graph_style`, or `graph_script` paths.
 #' @param schema_graph_links Named character vector mapping schema names to graph URLs.
+#' @param graph_entry_point Optional schema.table or schema.table.column graph root.
+#' @param graph_standalone_tables Tables included as leaves but not traversed from the graph root.
 #' @return An `atlas_report_config` object.
 #' @export
 atlas_report_config <- function(
@@ -39,7 +41,9 @@ atlas_report_config <- function(
     timestamp_format = "%Y-%m-%d_%H-%M-%S",
     sections = c(columns = TRUE, dependencies = TRUE, usages = TRUE, graphs = TRUE),
     template_overrides = list(),
-    schema_graph_links = character()) {
+    schema_graph_links = character(),
+    graph_entry_point = NULL,
+    graph_standalone_tables = character()) {
   scalar_text <- list(title = title, abstract = abstract, filename_prefix = filename_prefix,
                       output_directory = output_directory)
   invalid <- names(scalar_text)[!vapply(scalar_text, function(x) is.character(x) && length(x) == 1L && !is.na(x) && nzchar(x), logical(1L))]
@@ -61,7 +65,8 @@ atlas_report_config <- function(
     output_directory = output_directory, link_type = link_type, link_url = link_url,
     domain_labels = domain_labels, timestamp_format = timestamp_format,
     sections = sections, template_overrides = template_overrides,
-    schema_graph_links = schema_graph_links
+    schema_graph_links = schema_graph_links,
+    graph_entry_point = graph_entry_point, graph_standalone_tables = graph_standalone_tables
   )
   class(result) <- c("atlas_report_config", "list")
   result

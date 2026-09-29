@@ -15,5 +15,6 @@ dependency_graph_data(model, config = atlas_report_config())
 A list with \code{nodes} and \code{edges} data tables.
 }
 \description{
-Create dependency graph data
+With a configured entry point, traverse dependencies and reverse usages as in
+a rooted graph, retaining direction-specific edge colours and line styles.
 }

@@ -1,0 +1,183 @@
+/* ================================
+   FULL SCREEN RESET
+================================ */
+
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* removes scroll gaps */
+}
+
+/* ================================
+   REMOVE BOOTSTRAP CONSTRAINTS
+================================ */
+
+.container-fluid {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.section.level1 {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+.details-panel {
+    height: 100%;
+    overflow-y: auto;
+}
+
+#table-details {
+    width: 100%;
+}
+.details-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.details th,
+.details td {
+    width: 1%;
+    white-space: normal;
+    padding: 4px 8px;
+}
+
+.details {
+  border-left: 1px solid #cccccc;
+  padding: 10px;
+  font-family: Arial;
+}
+
+.details h3 {
+  margin-top: 0;
+}
+
+.details table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#table-details table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+div.details-panel {
+  font-size: 1rem;
+}
+
+div.details-panel h2 {
+  font-size: 2rem;
+}
+div.details-panel h3,
+div.details-panel h4 {
+  font-size: 1.5rem;
+}
+
+#table-details th,
+#table-details td {
+  padding: 4px 8px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+
+#table-details th {
+  width: auto;
+  font-weight: 600;
+}
+
+#table-details tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+#table-details tbody tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+
+#table-details tbody tr:hover {
+  background-color: #f0f0f0;
+}
+#table-details tbody tr.primary_key {
+  /*background-color: #fff8e1 !important;*/
+  font-weight: bold;
+}
+
+.error {
+  color:red;
+  font-style:italic;
+}
+.mandatory-icon::before {
+    content: "*";
+    color: #dc3545;
+    font-weight: bold;
+    margin-right: 4px;
+}
+
+.pk-icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    margin-right: 4px;
+    vertical-align: text-bottom;
+
+    background-repeat: no-repeat;
+    background-size: contain;
+
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23d4a017' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 11.5a3.5 3.5 0 1 1 3.163-5H14v2h-1v1h-1v1h-1v1H9v-1H6.663a3.5 3.5 0 0 1-3.163 1zM2 8a1.5 1.5 0 1 0 3 0 1.5 1.5 0 0 0-3 0z'/%3E%3C/svg%3E");
+}
+
+.fk-icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    margin-right: 4px;
+    vertical-align: text-bottom;
+
+    background-repeat: no-repeat;
+    background-size: contain;
+
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%230d6efd' viewBox='0 0 16 16'%3E%3Cpath d='M6.354 5.5H4a3.5 3.5 0 0 0 0 7h2a3.5 3.5 0 0 0 2.828-1.438.5.5 0 1 0-.8-.6A2.5 2.5 0 0 1 6 11.5H4a2.5 2.5 0 0 1 0-5h2.354a.5.5 0 1 0 0-1z'/%3E%3Cpath d='M9.646 10.5H12a3.5 3.5 0 0 0 0-7h-2a3.5 3.5 0 0 0-2.828 1.438.5.5 0 1 0 .8.6A2.5 2.5 0 0 1 10 4.5h2a2.5 2.5 0 0 1 0 5H9.646a.5.5 0 0 0 0 1z'/%3E%3Cpath d='M5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5A.5.5 0 0 1 5 8z'/%3E%3C/svg%3E");
+}
+
+.pk-column {
+    font-weight: bold;
+}
+
+.badge {
+  font-size: 10px;
+}
+
+.bg-primary {
+  background-color: #116bac !important;
+}
+.atlas-graph-header { flex: 0 0 auto; padding: 0 15px; font-family: Arial, sans-serif; }
+.atlas-graph-header p { margin: 8px 0; }
+.atlas-graph-layout { display: flex; flex: 1; min-height: 0; width: 100%; }
+.atlas-graph-panel { width: 66.666667%; min-width: 0; }
+.atlas-graph-layout > .details-panel { width: 33.333333%; box-sizing: border-box; padding: 0 15px; }
+.bg-secondary { background-color: #6c757d !important; }
+.badge { display: inline-block; padding: 3px 7px; color: white; border-radius: 10px; font-weight: bold; }
+
+#htmlwidget_container { display: flex; flex-direction: column; height: 100%; padding: 0 !important; }
+.atlas-graph-panel > .html-widget { height: 100% !important; }
+
+/* Compact table details with wrapping identifiers and descriptions. */
+.atlas-graph-layout > .details-panel { font-size: 12px; overflow-x: hidden; }
+div.details-panel h2 { font-size: 18px; }
+div.details-panel h3, div.details-panel h4 { font-size: 14px; }
+#table-details { box-sizing: border-box; padding: 8px; }
+#table-details table { table-layout: fixed; }
+#table-details th, #table-details td {
+  width: auto;
+  padding: 4px 6px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  vertical-align: top;
+}
+
+.description-language { display: block; margin-bottom: 4px; }

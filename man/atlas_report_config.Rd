@@ -25,7 +25,9 @@ atlas_report_config(
   timestamp_format = "\%Y-\%m-\%d_\%H-\%M-\%S",
   sections = c(columns = TRUE, dependencies = TRUE, usages = TRUE, graphs = TRUE),
   template_overrides = list(),
-  schema_graph_links = character()
+  schema_graph_links = character(),
+  graph_entry_point = NULL,
+  graph_standalone_tables = character()
 )
 }
 \arguments{
@@ -60,9 +62,13 @@ atlas_report_config(
 \item{sections}{Named logical vector controlling optional report sections.}
 
 \item{template_overrides}{Named list containing custom \code{report}, \code{style},
-\code{report_script}, or \code{graph_script} paths.}
+\code{report_script}, \code{graph_style}, or \code{graph_script} paths.}
 
 \item{schema_graph_links}{Named character vector mapping schema names to graph URLs.}
+
+\item{graph_entry_point}{Optional schema.table or schema.table.column graph root.}
+
+\item{graph_standalone_tables}{Tables included as leaves but not traversed from the graph root.}
 }
 \value{
 An \code{atlas_report_config} object.
