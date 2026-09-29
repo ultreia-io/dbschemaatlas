@@ -41,6 +41,8 @@ the Perform Release workflow from `develop`. The workflow validates one
 immutable commit, merges it to `main`, tags it, merges back to `develop`, and
 starts archive and website publication. Do not manually create release tags.
 
+For the first release, the workflow creates `main` from the validated release candidate.
+
 ## Licensing
 
 The repository owner has confirmed that the incoming ROS implementation was

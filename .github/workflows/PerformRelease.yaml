@@ -122,14 +122,17 @@ jobs:
             exit 1
           fi
 
-          if ! git merge-base --is-ancestor "origin/main" HEAD; then
-            echo "::error::${release_branch} does not contain the current main branch."
-            exit 1
-          fi
+          # main is created after validation when publishing the first release.
+          if git show-ref --verify --quiet refs/remotes/origin/main; then
+            if ! git merge-base --is-ancestor "origin/main" HEAD; then
+              echo "::error::${release_branch} does not contain the current main branch."
+              exit 1
+            fi
 
-          if git merge-base --is-ancestor HEAD "origin/main"; then
-            echo "::error::${release_branch} has already been integrated into main."
-            exit 1
+            if git merge-base --is-ancestor HEAD "origin/main"; then
+              echo "::error::${release_branch} has already been integrated into main."
+              exit 1
+            fi
           fi
 
           release_sha=$(git rev-parse HEAD)
@@ -213,9 +216,13 @@ jobs:
             exit 1
           fi
 
-          git switch --force-create main origin/main
-          git merge --no-ff "${RELEASE_SHA}" \
-            -m "Merge branch '${RELEASE_BRANCH}'"
+          if git show-ref --verify --quiet refs/remotes/origin/main; then
+            git switch --force-create main origin/main
+            git merge --no-ff "${RELEASE_SHA}" \
+              -m "Merge branch '${RELEASE_BRANCH}'"
+          else
+            git switch --create main "${RELEASE_SHA}"
+          fi
           git tag --annotate "${TAG}" \
             --message "dbschemaatlas ${VERSION}"
 
