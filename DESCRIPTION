@@ -1,6 +1,6 @@
 Package: dbschemaatlas
 Title: Reusable Database Schema Metadata and Reports
-Version: 0.1.0
+Version: 0.2.0
 Authors@R:
     person(given = "Tony", family = "Chemit", role = c("aut", "cre"),
            email = "tchemit@users.noreply.github.com")

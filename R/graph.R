@@ -16,7 +16,7 @@ dependency_graph_data <- function(model, config = atlas_report_config()) {
     table_id %in% tables$table_id & target_table_id %in% tables$table_id
   ]
   dependencies <- data.table::copy(dependencies)
-  dependencies[, relation := "→"]
+  dependencies[, relation := "\u2192"]
   root <- config$graph_entry_point
   if (!is.null(root)) {
     root <- normalize_entry_point(root)
@@ -29,7 +29,7 @@ dependency_graph_data <- function(model, config = atlas_report_config()) {
       reverse <- dependencies[target_table_id == current & !table_id %in% visited]
       for (i in seq_len(nrow(reverse))) {
         edge <- data.table::copy(reverse[i])
-        edge[, relation := "←"]
+        edge[, relation := "\u2190"]
         traversed[[length(traversed) + 1L]] <<- edge
         walk(edge$table_id[[1L]])
       }
@@ -57,10 +57,10 @@ dependency_graph_data <- function(model, config = atlas_report_config()) {
     from = table_id, to = target_table_id,
     from_column = columns, to_column = target_columns, relation,
     title = paste0(table_id, ".", vapply(columns, paste, character(1L), collapse = ", "),
-                   " → ", target_table_id, ".",
+                   " \u2192 ", target_table_id, ".",
                    vapply(target_columns, paste, character(1L), collapse = ", ")),
-    color = ifelse(relation == "←", "#FF7F0E", "#1F77B4"),
-    dashes = relation == "←"
+    color = ifelse(relation == "\u2190", "#FF7F0E", "#1F77B4"),
+    dashes = relation == "\u2190"
   )]
   list(nodes = nodes, edges = edges)
 }
