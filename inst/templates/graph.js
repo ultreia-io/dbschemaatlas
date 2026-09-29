@@ -8,10 +8,74 @@ layout.className = "atlas-graph-layout";
 var graphPanel = document.createElement("div");
 graphPanel.className = "atlas-graph-panel";
 var detailsPanel = el.parentNode.querySelector(".details-panel");
+var legend = el.parentNode.querySelector(".graph-legend");
 el.parentNode.insertBefore(layout, el);
 layout.appendChild(graphPanel);
 graphPanel.appendChild(el);
-if (detailsPanel) layout.appendChild(detailsPanel);
+if (legend) el.querySelector(".vis-network").appendChild(legend);
+if (detailsPanel) {
+  // A small draggable divider; keep at least 25% of the width for either pane.
+  const divider = document.createElement("div");
+  divider.className = "graph-divider";
+  divider.title = "Drag to resize, or click the divider and use Left/Right arrows.";
+  divider.tabIndex = 0;
+  divider.setAttribute("role", "separator");
+  divider.setAttribute("aria-orientation", "vertical");
+  divider.setAttribute("aria-label", "Resize graph and table details");
+  divider.setAttribute("aria-valuemin", "25");
+  divider.setAttribute("aria-valuemax", "75");
+  divider.setAttribute("aria-valuenow", "58");
+  layout.appendChild(divider);
+  layout.appendChild(detailsPanel);
+  let graphShare = 58;
+  function resizePanels(percent) {
+    graphShare = Math.max(25, Math.min(75, percent));
+    graphPanel.style.flexGrow = graphShare;
+    detailsPanel.style.flexGrow = 100 - graphShare;
+    divider.setAttribute("aria-valuenow", String(Math.round(graphShare)));
+    if (window.myNetwork) {
+      window.myNetwork.setSize("100%", "100%");
+      window.myNetwork.redraw();
+    }
+  }
+  divider.addEventListener("pointerdown", event => {
+    event.preventDefault();
+    divider.focus();
+    divider.setPointerCapture(event.pointerId);
+  });
+  divider.addEventListener("pointermove", event => {
+    if (!divider.hasPointerCapture(event.pointerId)) return;
+    const width = layout.clientWidth - divider.offsetWidth;
+    resizePanels(100 * (event.clientX - layout.getBoundingClientRect().left) / width);
+  });
+  divider.addEventListener("pointerup", event => {
+    if (divider.hasPointerCapture(event.pointerId)) divider.releasePointerCapture(event.pointerId);
+  });
+  divider.addEventListener("keydown", event => {
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+    event.preventDefault();
+    resizePanels(graphShare + (event.key === "ArrowLeft" ? -2 : 2));
+  });
+}
+
+// Hover previews the legend; clicking pins it until clicked again.
+if (legend) {
+  let legendPinned = false;
+  const helpButton = legend.querySelector("summary");
+  legend.addEventListener("mouseenter", () => { legend.open = true; });
+  legend.addEventListener("mouseleave", () => { legend.open = legendPinned; });
+  helpButton.addEventListener("click", event => {
+    event.preventDefault();
+    legendPinned = !legendPinned;
+    legend.open = legendPinned || legend.matches(":hover");
+  });
+  legend.addEventListener("toggle", () => {
+    helpButton.setAttribute("aria-expanded", String(legend.open));
+  });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") { legendPinned = false; legend.open = false; }
+  });
+}
 
 function selectNode(nodeId) {
   if (!window.myNetwork || !Object.prototype.hasOwnProperty.call(window.dbTables_columns, nodeId)) return;
@@ -34,13 +98,33 @@ function highlightNeighborhood(nodeId) {
     edges.get().forEach(edge => { edges.update({ id: edge.id, width: 1 }); });
     connectedEdges.forEach(edgeId => { edges.update({ id: edgeId, width: 2 });});
 }
+function fitGraph() {
+  // The built-in fit adds 10% padding; this leaves about 4% around the graph.
+  window.myNetwork.fit({ animation: false, maxZoomLevel: 10 });
+  window.myNetwork.moveTo({ scale: window.myNetwork.getScale() * 1.06, animation: false });
+}
+
 function initialiseGraph() {
   if (!window.myNetwork) {
     window.requestAnimationFrame(initialiseGraph);
     return;
   }
   window.myNetwork.setSize("100%", "100%");
-  window.myNetwork.fit();
+  fitGraph();
+  // Keep the standard fit icon, using the same compact fit as the initial view.
+  const fitButton = el.querySelector(".vis-zoomExtends");
+  const compactFitButton = fitButton.cloneNode(true);
+  fitButton.replaceWith(compactFitButton);
+  compactFitButton.addEventListener("click", fitGraph);
+  for (const [selector, label] of [
+    [".vis-zoomIn", "Zoom in"],
+    [".vis-zoomOut", "Zoom out"],
+    [".vis-zoomExtends", "Fit graph"]
+  ]) {
+    const button = el.querySelector(selector);
+    button.title = label;
+    button.setAttribute("aria-label", label);
+  }
   window.addEventListener("hashchange", handleHashChange);
   handleHashChange();
 }
@@ -110,7 +194,7 @@ function showNodeDetails(nodeId) {
   var html = `
   <h3>Table <b><i>${nodeId}</i></b></h3>
   <h4>Description</h4>
-  ${description}
+  <blockquote class="table-description">${description}</blockquote>
   ${generate_table_columns(nodeId, columns)}
   ${generate_table_dependencies(nodeId, dependencies)}
   ${generate_table_usages(nodeId, usages)}
@@ -130,7 +214,7 @@ function generate_table_columns(nodeId, data) {
 
   return `
     <h4>Columns</h4>
-    <table>
+    <table class="columns-table">
       <thead>
         <tr>
           <th>Column</th>

@@ -115,6 +115,32 @@ graph_table_details <- function(model, config, ids) {
   result
 }
 
+# Native disclosure legend; colours come from the same configuration as the nodes.
+graph_legend <- function(config, schemas) {
+  tags <- htmltools::tags
+  node_items <- lapply(schemas, function(schema) {
+    label <- unname(config$domain_labels[schema])
+    if (!length(label) || is.na(label)) label <- schema
+    tags$li(tags$span(class = "legend-node", style = paste0("background-color:", schema_color(schema, config))), label)
+  })
+  tags$details(class = "graph-legend",
+    tags$summary(title = "Legend (click to pin)", `aria-label` = "Legend", `aria-expanded` = "false", "?"),
+    tags$div(class = "graph-legend-content",
+      tags$strong("Column icons"),
+      tags$ul(
+        tags$li(tags$span(class = "mandatory-icon"), "Mandatory"),
+        tags$li(tags$span(class = "pk-icon"), "Primary key"),
+        tags$li(tags$span(class = "fk-icon"), "Foreign key")),
+      tags$strong("Nodes"),
+      tags$ul(
+        if (!is.null(config$graph_entry_point)) tags$li(tags$span(class = "legend-node", style = "background-color:red"), "Entry point"),
+        node_items),
+      tags$strong("Relationships"),
+      tags$ul(
+        tags$li(tags$span(class = "legend-edge dependency"), "Dependency"),
+        tags$li(tags$span(class = "legend-edge usage"), "Usage (reverse lookup)"))))
+}
+
 #' Create an interactive dependency graph
 #'
 #' Includes a two-panel layout, node navigation, neighbourhood highlighting,
@@ -151,7 +177,9 @@ dependency_graph <- function(model, config = atlas_report_config()) {
       htmltools::tags$h1(class = "title", config$title),
       htmltools::tags$h3(class = "subtitle", paste("Last updated:", format(Sys.time(), "%d %B %Y %H:%M %Z"))),
       if (!is.null(config$author)) htmltools::tags$h4(class = "author", config$author)))
+  legend_schemas <- unique(model$tables[table_id %in% data$nodes$id, schema])
   graph <- htmlwidgets::appendContent(graph,
+    graph_legend(config, legend_schemas),
     htmltools::tags$div(class = "details-panel",
       htmltools::tags$h2("Table details"),
       htmltools::tags$div(id = "table-details", class = "details",

@@ -6,7 +6,8 @@ html, body {
   width: 100%;
   height: 100%;
   margin: 0;
-  padding: 0;
+  padding: 0 !important; /* override htmlwidgets browser padding */
+  box-sizing: border-box;
   overflow: hidden; /* removes scroll gaps */
 }
 
@@ -48,7 +49,6 @@ html, body {
 }
 
 .details {
-  border-left: 1px solid #cccccc;
   padding: 10px;
   font-family: Arial;
 }
@@ -155,11 +155,17 @@ div.details-panel h4 {
 .bg-primary {
   background-color: #116bac !important;
 }
-.atlas-graph-header { flex: 0 0 auto; padding: 0 15px; font-family: Arial, sans-serif; }
-.atlas-graph-header p { margin: 8px 0; }
+.atlas-graph-header { flex: 0 0 auto; padding: 8px 15px; font-family: Arial, sans-serif; }
+.atlas-graph-header h1 { margin: 0 0 4px; font-size: 22px; line-height: 1.2; }
+.atlas-graph-header h3, .atlas-graph-header h4 {
+  display: inline-block;
+  margin: 0 16px 0 0;
+  font-size: 12px;
+  line-height: 1.4;
+}
 .atlas-graph-layout { display: flex; flex: 1; min-height: 0; width: 100%; }
-.atlas-graph-panel { width: 66.666667%; min-width: 0; }
-.atlas-graph-layout > .details-panel { width: 33.333333%; box-sizing: border-box; padding: 0 15px; }
+.atlas-graph-panel { position: relative; flex: 58 1 0%; min-width: 0; }
+.atlas-graph-layout > .details-panel { flex: 42 1 0%; min-width: 0; box-sizing: border-box; padding: 0 15px; }
 .bg-secondary { background-color: #6c757d !important; }
 .badge { display: inline-block; padding: 3px 7px; color: white; border-radius: 10px; font-weight: bold; }
 
@@ -168,7 +174,13 @@ div.details-panel h4 {
 
 /* Compact table details with wrapping identifiers and descriptions. */
 .atlas-graph-layout > .details-panel { font-size: 12px; overflow-x: hidden; }
-div.details-panel h2 { font-size: 18px; }
+div.details-panel h2 {
+  display: flex;
+  align-items: center;
+  height: 34px;
+  margin: 10px 0 8px;
+  font-size: 18px;
+}
 div.details-panel h3, div.details-panel h4 { font-size: 14px; }
 #table-details { box-sizing: border-box; padding: 8px; }
 #table-details table { table-layout: fixed; }
@@ -181,3 +193,92 @@ div.details-panel h3, div.details-panel h4 { font-size: 14px; }
 }
 
 .description-language { display: block; margin-bottom: 4px; }
+
+/* Keep useful controls together at the top of the graph. */
+.atlas-graph-panel .vis-network .vis-navigation .vis-button.vis-up,
+.atlas-graph-panel .vis-network .vis-navigation .vis-button.vis-down,
+.atlas-graph-panel .vis-network .vis-navigation .vis-button.vis-left,
+.atlas-graph-panel .vis-network .vis-navigation .vis-button.vis-right { display: none; }
+.atlas-graph-panel .vis-network .vis-navigation .vis-button.vis-zoomIn { top: 10px; bottom: auto; right: 130px; }
+.atlas-graph-panel .vis-network .vis-navigation .vis-button.vis-zoomOut { top: 10px; bottom: auto; right: 90px; }
+.atlas-graph-panel .vis-network .vis-navigation .vis-button.vis-zoomExtends { top: 10px; bottom: auto; right: 50px; }
+
+/* Keep column names intact and let types use only their required width. */
+#table-details table.columns-table { table-layout: auto; }
+#table-details .columns-table th:nth-child(1),
+#table-details .columns-table td:nth-child(1),
+#table-details .columns-table th:nth-child(2),
+#table-details .columns-table td:nth-child(2) {
+  width: 1%;
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+#table-details .columns-table th:nth-child(3) { width: auto; }
+
+/* Native disclosure with hover preview and click-to-pin handling in graph.js. */
+.graph-legend { position: absolute; top: 10px; right: 10px; z-index: 2; font-size: 12px; }
+.graph-legend summary {
+  box-sizing: border-box;
+  width: 34px;
+  height: 34px;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+  list-style: none;
+  font-size: 0;
+  background-color: transparent;
+  background-position: 2px 2px;
+  background-repeat: no-repeat;
+  border: 0;
+  border-radius: 17px;
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2230%22%20height%3D%2230%22%20viewBox%3D%220%200%2032%2032%22%20fill%3D%22none%22%20stroke%3D%22%23475569%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2216%22%20r%3D%2214%22%2F%3E%3Cpath%20d%3D%22M12%2012a4%204%200%200%201%208%200c0%203-4%203-4%206%22%2F%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2222%22%20r%3D%221%22%20fill%3D%22%23475569%22%20stroke%3D%22none%22%2F%3E%3C%2Fsvg%3E");
+}
+.graph-legend summary::-webkit-details-marker { display: none; }
+.graph-legend summary:hover { box-shadow: 0 0 3px 3px rgba(71, 85, 105, .15); }
+.graph-legend summary:focus-visible { outline: 2px solid #116bac; outline-offset: 3px; }
+.graph-legend-content { position: absolute; top: calc(100% + 12px); right: 0; width: 240px; padding: 12px; background: white; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0 3px 8px #0002; }
+.graph-legend ul { list-style: none; margin: 4px 0 12px; padding: 0; }
+.graph-legend ul:last-child { margin-bottom: 0; }
+.graph-legend li { display: flex; align-items: center; gap: 6px; margin: 4px 0; }
+.legend-node { display: inline-block; width: 12px; height: 12px; border: 1px solid #999; border-radius: 50%; }
+.legend-edge { display: inline-block; width: 22px; border-top: 2px solid #1F77B4; }
+.legend-edge.usage { border-top: 2px dashed #FF7F0E; }
+
+#table-details blockquote.table-description {
+  margin: 6px 0 12px;
+  padding: 6px 10px;
+  border-left: 3px solid #ccc;
+  background: #f8f9fa;
+  font-size: inherit;
+}
+#table-details blockquote.table-description p:last-child { margin-bottom: 0; }
+
+
+/* Keep the hover preview open while crossing the gap below the help icon. */
+.graph-legend-content::before {
+  content: "";
+  position: absolute;
+  top: -12px;
+  left: 0;
+  right: 0;
+  height: 12px;
+}
+
+/* Simple SVG icons keep every action in the same neutral colour. */
+.atlas-graph-panel .vis-network .vis-navigation .vis-button.vis-zoomIn { background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2230%22%20height%3D%2230%22%20viewBox%3D%220%200%2032%2032%22%20fill%3D%22none%22%20stroke%3D%22%23475569%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2216%22%20r%3D%2214%22%2F%3E%3Cpath%20d%3D%22M16%2010v12M10%2016h12%22%2F%3E%3C%2Fsvg%3E"); }
+.atlas-graph-panel .vis-network .vis-navigation .vis-button.vis-zoomOut { background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2230%22%20height%3D%2230%22%20viewBox%3D%220%200%2032%2032%22%20fill%3D%22none%22%20stroke%3D%22%23475569%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2216%22%20r%3D%2214%22%2F%3E%3Cpath%20d%3D%22M10%2016h12%22%2F%3E%3C%2Fsvg%3E"); }
+.atlas-graph-panel .vis-network .vis-navigation .vis-button.vis-zoomExtends { background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2230%22%20height%3D%2230%22%20viewBox%3D%220%200%2032%2032%22%20fill%3D%22none%22%20stroke%3D%22%23475569%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2216%22%20r%3D%2214%22%2F%3E%3Cpath%20d%3D%22M10%2014v-4h4M18%2010h4v4M22%2018v4h-4M14%2022h-4v-4%22%2F%3E%3C%2Fsvg%3E"); }
+.atlas-graph-panel .vis-network .vis-navigation .vis-button:hover,
+.atlas-graph-panel .vis-network .vis-navigation .vis-button:active { box-shadow: 0 0 3px 3px rgba(71, 85, 105, .15); }
+
+/* Full-height split-pane handle, with no dependency or separate component. */
+.graph-divider {
+  flex: 0 0 6px;
+  cursor: col-resize;
+  touch-action: none;
+  background: #eee;
+  border-left: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  box-sizing: border-box;
+}
+.graph-divider:hover, .graph-divider:focus-visible { background: #94a3b8; }
