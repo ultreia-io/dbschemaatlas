@@ -259,8 +259,9 @@ jobs:
       TAG: ${{ needs.prepare.outputs.tag }}
 
     steps:
-      - name: Trigger tag workflows
+      - name: Trigger publication workflows
         shell: bash
         run: |
-          gh workflow run Website.yaml --repo "${GITHUB_REPOSITORY}" --ref "${TAG}"
+          # Pages permits deployments from develop; build the released tag.
+          gh workflow run Website.yaml --repo "${GITHUB_REPOSITORY}" --ref develop -f ref="${TAG}"
           gh workflow run Release.yaml --repo "${GITHUB_REPOSITORY}" --ref "${TAG}"
