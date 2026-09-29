@@ -1,3 +1,8 @@
+# dbschemaatlas 0.2.1
+
+- Display mandatory, primary-key and foreign-key icons beside report column names, with an icon legend.
+- Deploy release websites through develop using the released tag as the site source.
+
 # dbschemaatlas 0.2.0
 
 - Restore interactive reports with all rows visible and their natural order preserved.

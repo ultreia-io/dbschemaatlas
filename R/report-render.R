@@ -1,3 +1,16 @@
+# Render metadata flags beside a column name, rather than as table columns.
+render_column_name <- function(column, mandatory = FALSE, primary_key = FALSE, foreign_key = FALSE) {
+  icon <- function(enabled, class, label) {
+    if (!isTRUE(enabled)) return("")
+    sprintf('<span class="%s" title="%s" aria-label="%s"></span>', class, label, label)
+  }
+  label <- escape_html(column)
+  if (isTRUE(primary_key)) label <- paste0('<span class="pk-column">', label, '</span>')
+  paste0(icon(primary_key, "pk-icon", "Primary key"),
+         icon(foreign_key, "fk-icon", "Foreign key"),
+         icon(mandatory, "mandatory-icon", "Mandatory"), label)
+}
+
 render_markdown_description <- function(description, quote = FALSE) {
   values <- parse_description(description)
   text <- if (!length(values) || !any(nzchar(trimws(unlist(values))))) {
@@ -46,7 +59,19 @@ render_interactive_table <- function(data, raw_columns = character()) {
 build_report_body <- function(model, config, timestamp) {
   schemas <- model$schemas
   if (!is.null(config$schemas)) schemas <- schemas[schema %in% config$schemas]
-  sections <- list()
+  column_names <- function(schema_name, table_name, names) {
+    columns <- model$columns[schema == schema_name & table == table_name]
+    columns <- columns[match(names, column)]
+    paste(mapply(render_column_name, names, columns$mandatory,
+                 columns$primary_key, columns$foreign_key, USE.NAMES = FALSE), collapse = "<br>")
+  }
+  sections <- list(legend = paste(
+    "## Legend",
+    '<span class="pk-icon" title="Primary key"></span> Primary key &nbsp; ',
+    '<span class="fk-icon" title="Foreign key"></span> Foreign key &nbsp; ',
+    '<span class="mandatory-icon" title="Mandatory"></span> Mandatory (NOT NULL)',
+    sep = "\n\n"
+  ))
   widgets <- list()
   render_table <- function(data, raw_columns = character()) {
     if (!nrow(data)) return("<p class='atlas-empty'>None.</p>")
@@ -77,27 +102,28 @@ build_report_body <- function(model, config, timestamp) {
       if (config$sections[["columns"]]) {
         value <- model$columns[schema == schema_name & table == table_name,
           list(column, type, mandatory, primary_key, foreign_key, description)]
-        table_parts <- c(table_parts, "#### Columns", render_table(value))
+        value[, column := mapply(render_column_name, column, mandatory, primary_key,
+                                  foreign_key, USE.NAMES = FALSE)]
+        value[, c("mandatory", "primary_key", "foreign_key") := NULL]
+        table_parts <- c(table_parts, "#### Columns", render_table(value, "column"))
       }
       if (config$sections[["dependencies"]]) {
         value <- model$dependencies[table_id == id, list(
-          columns,
+          columns = vapply(columns, function(names) column_names(schema_name, table_name, names), character(1L)),
           type = vapply(target_table_id, config$link_type, character(1L)),
           target = mapply(config$link_url, target_schema, target_table, target_table_id, USE.NAMES = FALSE),
-          target_columns,
-          foreign_key
+          target_columns = mapply(column_names, target_schema, target_table, target_columns, USE.NAMES = FALSE)
         )]
-        table_parts <- c(table_parts, "#### Dependencies", render_table(value, "target"))
+        table_parts <- c(table_parts, "#### Dependencies", render_table(value, c("columns", "target", "target_columns")))
       }
       if (config$sections[["usages"]]) {
         value <- model$usages[table_id == id, list(
-          columns,
+          columns = vapply(columns, function(names) column_names(schema_name, table_name, names), character(1L)),
           type = vapply(usage_table_id, config$link_type, character(1L)),
           usage = mapply(config$link_url, usage_schema, usage_table, usage_table_id, USE.NAMES = FALSE),
-          usage_columns,
-          usage_foreign_key
+          usage_columns = mapply(column_names, usage_schema, usage_table, usage_columns, USE.NAMES = FALSE)
         )]
-        table_parts <- c(table_parts, "#### Usages", render_table(value, "usage"))
+        table_parts <- c(table_parts, "#### Usages", render_table(value, c("columns", "usage", "usage_columns")))
       }
       parts <- c(parts, table_parts)
     }
