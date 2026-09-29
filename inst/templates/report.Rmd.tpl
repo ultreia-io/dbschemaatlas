@@ -14,6 +14,10 @@ output:
 {{{style}}}
 </style>
 
+<script>
+{{{report_script}}}
+</script>
+
 {{{analytics}}}
 
 {{#has_logo}}<img src="{{logo}}" alt="Report logo" class="atlas-logo">{{/has_logo}}

@@ -15,8 +15,9 @@
 #' @param domain_labels Named character vector of labels.
 #' @param timestamp_format Format passed to [base::format()].
 #' @param sections Named logical vector controlling optional report sections.
-#' @param template_overrides Named list containing custom `report`, `style`, or
-#'   `graph_script` paths.
+#' @param template_overrides Named list containing custom `report`, `style`,
+#'   `report_script`, or `graph_script` paths.
+#' @param schema_graph_links Named character vector mapping schema names to graph URLs.
 #' @return An `atlas_report_config` object.
 #' @export
 atlas_report_config <- function(
@@ -37,7 +38,8 @@ atlas_report_config <- function(
     domain_labels = character(),
     timestamp_format = "%Y-%m-%d_%H-%M-%S",
     sections = c(columns = TRUE, dependencies = TRUE, usages = TRUE, graphs = TRUE),
-    template_overrides = list()) {
+    template_overrides = list(),
+    schema_graph_links = character()) {
   scalar_text <- list(title = title, abstract = abstract, filename_prefix = filename_prefix,
                       output_directory = output_directory)
   invalid <- names(scalar_text)[!vapply(scalar_text, function(x) is.character(x) && length(x) == 1L && !is.na(x) && nzchar(x), logical(1L))]
@@ -58,7 +60,8 @@ atlas_report_config <- function(
     schema_colors = schema_colors, filename_prefix = filename_prefix,
     output_directory = output_directory, link_type = link_type, link_url = link_url,
     domain_labels = domain_labels, timestamp_format = timestamp_format,
-    sections = sections, template_overrides = template_overrides
+    sections = sections, template_overrides = template_overrides,
+    schema_graph_links = schema_graph_links
   )
   class(result) <- c("atlas_report_config", "list")
   result

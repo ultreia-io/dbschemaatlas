@@ -2,3 +2,11 @@ body { line-height: 1.5; }
 .atlas-logo { max-height: 96px; max-width: 280px; }
 table { width: 100%; }
 th { text-align: left; }
+
+.nav-tabs a.disabled { opacity: 0.5; cursor: not-allowed; }
+.tab-content { padding-top: 1em; }
+.error { color: red; font-style: italic; }
+
+.bg-primary { background-color: #116bac !important; }
+
+.bg-secondary { background-color: #6c757d !important; }

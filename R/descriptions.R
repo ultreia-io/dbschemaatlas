@@ -5,12 +5,14 @@
 #' @export
 parse_description <- function(x) {
   if (!is.character(x) || length(x) != 1L || is.na(x)) return(list())
-  pattern <- "\\[([A-Z]{2})\\]\\s*([\\s\\S]*?)(?=\\n\\s*\\[[A-Z]{2}\\]|$)"
-  match <- gregexpr(pattern, x, perl = TRUE)
-  values <- regmatches(x, match)[[1L]]
-  if (!length(values)) return(list(EN = trimws(x)))
-  languages <- sub("^\\[([A-Z]{2})\\].*$", "\\1", values)
-  text <- trimws(sub("^\\[[A-Z]{2}\\]\\s*", "", values, perl = TRUE))
+  pattern <- "(?m)^[ \t]*(?:\\[[A-Z]{2}\\][ \t]*:?[ \t]*|[A-Z]{2}:[ \t]*)"
+  starts <- gregexpr(pattern, x, perl = TRUE)[[1L]]
+  if (starts[[1L]] < 0L) return(list(EN = trimws(x)))
+  lengths <- attr(starts, "match.length")
+  headers <- substring(x, starts, starts + lengths - 1L)
+  languages <- sub("^[ \t]*\\[?([A-Z]{2})\\]?.*$", "\\1", headers, perl = TRUE)
+  ends <- c(starts[-1L] - 1L, nchar(x))
+  text <- trimws(substring(x, starts + lengths, ends))
   stats::setNames(as.list(text), languages)
 }
 
