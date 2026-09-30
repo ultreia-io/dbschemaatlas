@@ -1,3 +1,7 @@
+# dbschemaatlas 0.2.2
+
+- Allow report indexes to omit generated asset directories and their descendants.
+
 # dbschemaatlas 0.2.1
 
 - Display mandatory, primary-key and foreign-key icons beside report column names, with an icon legend.
