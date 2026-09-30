@@ -1,6 +1,11 @@
 # dbschemaatlas 0.2.2
 
 - Allow report indexes to omit generated asset directories and their descendants.
+- Add a matching control in the graph details header to hide and restore the panel.
+  Keep it aligned with graph controls and fit the graph after each toggle.
+- Keep the complete graph fitted while resizing the graph and details panes.
+- Keep dependency and usage table identifiers on one line, with horizontal scrolling when needed.
+- Start the graph with a narrower, 35% details pane while retaining the resizable divider.
 
 # dbschemaatlas 0.2.1
 
