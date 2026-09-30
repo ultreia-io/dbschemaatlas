@@ -164,8 +164,9 @@ div.details-panel h4 {
   line-height: 1.4;
 }
 .atlas-graph-layout { display: flex; flex: 1; min-height: 0; width: 100%; }
-.atlas-graph-panel { position: relative; flex: 58 1 0%; min-width: 0; }
-.atlas-graph-layout > .details-panel { flex: 42 1 0%; min-width: 0; box-sizing: border-box; padding: 0 15px; }
+.atlas-graph-panel { position: relative; flex: 65 1 0%; min-width: 0; }
+.atlas-graph-layout > .details-panel { position: relative; flex: 35 1 0%; min-width: 0; box-sizing: border-box; padding: 0 15px; }
+.atlas-graph-layout > .details-panel[hidden], .graph-divider[hidden] { display: none; }
 .bg-secondary { background-color: #6c757d !important; }
 .badge { display: inline-block; padding: 3px 7px; color: white; border-radius: 10px; font-weight: bold; }
 
@@ -202,6 +203,31 @@ div.details-panel h3, div.details-panel h4 { font-size: 14px; }
 .atlas-graph-panel .vis-network .vis-navigation .vis-button.vis-zoomIn { top: 10px; bottom: auto; right: 130px; }
 .atlas-graph-panel .vis-network .vis-navigation .vis-button.vis-zoomOut { top: 10px; bottom: auto; right: 90px; }
 .atlas-graph-panel .vis-network .vis-navigation .vis-button.vis-zoomExtends { top: 10px; bottom: auto; right: 50px; }
+.graph-details-toggle {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  cursor: pointer;
+  border: 0;
+  border-radius: 17px;
+  background-color: transparent;
+  background-position: 2px 2px;
+  background-repeat: no-repeat;
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2230%22%20height%3D%2230%22%20viewBox%3D%220%200%2032%2032%22%20fill%3D%22none%22%20stroke%3D%22%23475569%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2216%22%20r%3D%2214%22%2F%3E%3Cpath%20d%3D%22M8%2010h16v12H8zM18%2010v12%22%2F%3E%3C%2Fsvg%3E");
+}
+.details-panel h2 > .graph-details-toggle { position: absolute; right: 15px; }
+.atlas-graph-panel .vis-network > .graph-details-toggle {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+}
+.details-collapsed .atlas-graph-panel .vis-network .vis-navigation .vis-button.vis-zoomIn { right: 170px; }
+.details-collapsed .atlas-graph-panel .vis-network .vis-navigation .vis-button.vis-zoomOut { right: 130px; }
+.details-collapsed .atlas-graph-panel .vis-network .vis-navigation .vis-button.vis-zoomExtends { right: 90px; }
+.details-collapsed .graph-legend { right: 50px; }
+.graph-details-toggle:hover { box-shadow: 0 0 3px 3px rgba(71, 85, 105, .15); }
+.graph-details-toggle:focus-visible { outline: 2px solid #116bac; outline-offset: 3px; }
 
 /* Keep column names intact and let types use only their required width. */
 #table-details table.columns-table { table-layout: auto; }
@@ -214,6 +240,14 @@ div.details-panel h3, div.details-panel h4 { font-size: 14px; }
   overflow-wrap: normal;
 }
 #table-details .columns-table th:nth-child(3) { width: auto; }
+
+/* Keep relationship identifiers intact; scroll the table when the pane is narrow. */
+#table-details .relations-table-scroll { max-width: 100%; overflow-x: auto; }
+#table-details table.relations-table { width: max-content; min-width: 100%; table-layout: auto; }
+#table-details .relations-table th,
+#table-details .relations-table td { white-space: nowrap; overflow-wrap: normal; }
+#table-details .relations-table th:nth-child(2),
+#table-details .relations-table td:nth-child(2) { width: 1%; }
 
 /* Native disclosure with hover preview and click-to-pin handling in graph.js. */
 .graph-legend { position: absolute; top: 10px; right: 10px; z-index: 2; font-size: 12px; }

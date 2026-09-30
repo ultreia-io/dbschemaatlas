@@ -34,3 +34,15 @@ test_that("index generation validates roots and handles subdirectories", {
   paths <- generate_report_indexes(root)
   expect_length(paths, 2L)
 })
+
+test_that("asset directories are omitted from report indexes", {
+  root <- withr::local_tempdir()
+  dir.create(file.path(root, "dated", "graph-assets"), recursive = TRUE)
+  dir.create(file.path(root, "dated", "report-files"))
+  indexes <- generate_report_indexes(root, exclude_directories = "graph-assets")
+  expect_length(indexes, 3L)
+  expect_false(file.exists(file.path(root, "dated", "graph-assets", "index.html")))
+  dated_index <- paste(readLines(file.path(root, "dated", "index.html")), collapse = "")
+  expect_false(grepl("graph-assets", dated_index, fixed = TRUE))
+  expect_true(grepl("report-files", dated_index, fixed = TRUE))
+})

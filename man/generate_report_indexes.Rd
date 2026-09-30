@@ -4,17 +4,24 @@
 \alias{generate_report_indexes}
 \title{Generate directory indexes}
 \usage{
-generate_report_indexes(root_directory, title = "Schema reports")
+generate_report_indexes(
+  root_directory,
+  title = "Schema reports",
+  exclude_directories = character()
+)
 }
 \arguments{
 \item{root_directory}{Root report directory.}
 
 \item{title}{Index title.}
+
+\item{exclude_directories}{Directory names to omit, including their descendants.}
 }
 \value{
 Paths of generated indexes, invisibly.
 }
 \description{
 Creates a simple \code{index.html} in the root and each subdirectory. Existing
-indexes are overwritten; generated links use relative paths.
+indexes are overwritten; generated links use relative paths. Asset directories
+can be excluded from navigation and index generation.
 }

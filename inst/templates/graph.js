@@ -9,10 +9,22 @@ var graphPanel = document.createElement("div");
 graphPanel.className = "atlas-graph-panel";
 var detailsPanel = el.parentNode.querySelector(".details-panel");
 var legend = el.parentNode.querySelector(".graph-legend");
+let detailsToggle;
 el.parentNode.insertBefore(layout, el);
 layout.appendChild(graphPanel);
 graphPanel.appendChild(el);
-if (legend) el.querySelector(".vis-network").appendChild(legend);
+const graphCanvas = el.querySelector(".vis-network");
+if (legend) graphCanvas.appendChild(legend);
+function alignDetailsToggle() {
+  if (!detailsToggle) return;
+  const fitButton = el.querySelector(".vis-zoomExtends");
+  if (!fitButton) return;
+  const target = detailsPanel.hidden ? graphCanvas : detailsPanel;
+  const fitBounds = fitButton.getBoundingClientRect();
+  const targetBounds = target.getBoundingClientRect();
+  detailsToggle.style.top = `${Math.round(fitBounds.top + fitBounds.height / 2 -
+    targetBounds.top - detailsToggle.offsetHeight / 2)}px`;
+}
 if (detailsPanel) {
   // A small draggable divider; keep at least 25% of the width for either pane.
   const divider = document.createElement("div");
@@ -24,19 +36,61 @@ if (detailsPanel) {
   divider.setAttribute("aria-label", "Resize graph and table details");
   divider.setAttribute("aria-valuemin", "25");
   divider.setAttribute("aria-valuemax", "75");
-  divider.setAttribute("aria-valuenow", "58");
+  divider.setAttribute("aria-valuenow", "65");
   layout.appendChild(divider);
   layout.appendChild(detailsPanel);
-  let graphShare = 58;
+  detailsPanel.id = el.id ? `${el.id}-details` : "atlas-graph-details";
+  const detailsHeading = detailsPanel.querySelector("h2");
+  detailsToggle = document.createElement("button");
+  detailsToggle.type = "button";
+  detailsToggle.className = "graph-details-toggle";
+  detailsToggle.setAttribute("aria-controls", detailsPanel.id);
+  detailsToggle.setAttribute("aria-expanded", "true");
+  detailsToggle.title = "Hide table details";
+  detailsToggle.setAttribute("aria-label", detailsToggle.title);
+  detailsHeading.appendChild(detailsToggle);
+  detailsToggle.addEventListener("click", () => {
+    const hidden = !detailsPanel.hidden;
+    if (hidden) graphCanvas.appendChild(detailsToggle);
+    else detailsHeading.appendChild(detailsToggle);
+    detailsPanel.hidden = hidden;
+    divider.hidden = hidden;
+    layout.classList.toggle("details-collapsed", hidden);
+    detailsToggle.setAttribute("aria-expanded", String(!hidden));
+    detailsToggle.title = hidden ? "Show table details" : "Hide table details";
+    detailsToggle.setAttribute("aria-label", detailsToggle.title);
+    detailsToggle.focus();
+    window.requestAnimationFrame(() => {
+      alignDetailsToggle();
+      if (window.myNetwork) {
+        window.myNetwork.setSize("100%", "100%");
+        window.myNetwork.redraw();
+        fitGraph();
+      }
+    });
+  });
+  let resizeFrame = null;
+  function scheduleGraphFit() {
+    if (resizeFrame !== null) return;
+    resizeFrame = window.requestAnimationFrame(() => {
+      resizeFrame = null;
+      if (!window.myNetwork) return;
+      window.myNetwork.setSize("100%", "100%");
+      window.myNetwork.redraw();
+      fitGraph();
+    });
+  }
+  window.addEventListener("resize", () => {
+    alignDetailsToggle();
+    scheduleGraphFit();
+  });
+  let graphShare = 65;
   function resizePanels(percent) {
     graphShare = Math.max(25, Math.min(75, percent));
     graphPanel.style.flexGrow = graphShare;
     detailsPanel.style.flexGrow = 100 - graphShare;
     divider.setAttribute("aria-valuenow", String(Math.round(graphShare)));
-    if (window.myNetwork) {
-      window.myNetwork.setSize("100%", "100%");
-      window.myNetwork.redraw();
-    }
+    scheduleGraphFit();
   }
   divider.addEventListener("pointerdown", event => {
     event.preventDefault();
@@ -50,6 +104,7 @@ if (detailsPanel) {
   });
   divider.addEventListener("pointerup", event => {
     if (divider.hasPointerCapture(event.pointerId)) divider.releasePointerCapture(event.pointerId);
+    scheduleGraphFit();
   });
   divider.addEventListener("keydown", event => {
     if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
@@ -116,6 +171,7 @@ function initialiseGraph() {
   const compactFitButton = fitButton.cloneNode(true);
   fitButton.replaceWith(compactFitButton);
   compactFitButton.addEventListener("click", fitGraph);
+  alignDetailsToggle();
   for (const [selector, label] of [
     [".vis-zoomIn", "Zoom in"],
     [".vis-zoomOut", "Zoom out"],
@@ -250,7 +306,8 @@ function generate_table_dependencies(nodeId, data) {
   `).join('');
   return `
     <h4>Dependencies</h4>
-    <table>
+    <div class="relations-table-scroll">
+    <table class="relations-table">
       <thead>
         <tr>
           <th>Column</th>
@@ -263,6 +320,7 @@ function generate_table_dependencies(nodeId, data) {
         ${rows}
       </tbody>
     </table>
+    </div>
   `;
 }
 
@@ -285,7 +343,8 @@ function generate_table_usages(nodeId, data) {
 
   return `
     <h4>Usages</h4>
-    <table>
+    <div class="relations-table-scroll">
+    <table class="relations-table">
       <thead>
         <tr>
           <th>Column</th>
@@ -298,6 +357,7 @@ function generate_table_usages(nodeId, data) {
         ${rows}
       </tbody>
     </table>
+    </div>
   `;
 }
 
