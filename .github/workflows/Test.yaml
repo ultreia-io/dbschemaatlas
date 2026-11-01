@@ -72,7 +72,7 @@ jobs:
           covr::report(coverage, file = "coverage.html", browse = FALSE)
 
       - name: Store coverage reports
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: coverage-report
           path: |
